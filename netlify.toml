@@ -1,0 +1,10 @@
+# The Next.js app lives in a subfolder; point Netlify's base directory at it.
+# command and publish are resolved relative to base.
+[build]
+  base = "CJs_Mobile_Cleaning_Netlify/cjs-mobile-cleaning-netlify"
+  command = "npm ci && npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "24"
+  NEXT_TELEMETRY_DISABLED = "1"
