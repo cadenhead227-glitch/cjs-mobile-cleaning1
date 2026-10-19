@@ -1,0 +1,3 @@
+// Both sides include their travel buffer. Strict inequalities allow back-to-back visits.
+// Aliases come only from our source code, never from request input.
+export function reservationConflict(candidate:string,ignoreBooking=false){return `(EXISTS (SELECT 1 FROM bookings AS reservation JOIN slots AS held ON held.id=reservation.slot_id WHERE reservation.status!='cancelled' ${ignoreBooking?'AND reservation.id!=?':''} AND julianday(${candidate}.start)<julianday(held.end)+(held.buffer / 1440.0) AND julianday(${candidate}.end)+(${candidate}.buffer / 1440.0)>julianday(held.start)) OR EXISTS (SELECT 1 FROM availability_blocks block WHERE ${candidate}.start<block.end AND ${candidate}.end>block.start))`;}

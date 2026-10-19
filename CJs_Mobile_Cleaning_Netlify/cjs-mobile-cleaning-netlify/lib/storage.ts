@@ -1,0 +1,6 @@
+function settings(){const url=process.env.SUPABASE_URL,key=(process.env.SUPABASE_SECRET_KEY||process.env.SUPABASE_SERVICE_ROLE_KEY),bucket=process.env.SUPABASE_STORAGE_BUCKET||'cjs-private-photos';if(!url||!key)throw new Error('Photo storage is unavailable.');return {url:url.replace(/\/$/,''),key,bucket};}
+function objectUrl(key:string){const s=settings();return {...s,path:s.url+'/storage/v1/object/'+encodeURIComponent(s.bucket)+'/'+key.split('/').map(encodeURIComponent).join('/')};}
+export const photoBucket={
+ async put(key:string,bytes:Uint8Array,options:{httpMetadata:{contentType:string}}){const s=objectUrl(key);const r=await fetch(s.path,{method:'POST',headers:{apikey:s.key,...(s.key.startsWith('sb_secret_')?{}:{Authorization:'Bearer '+s.key}),'Content-Type':options.httpMetadata.contentType,'x-upsert':'false'},body:bytes as BodyInit,signal:AbortSignal.timeout(20000)});if(!r.ok)throw new Error('Photo upload failed. Please try again.');},
+ async get(key:string){const s=objectUrl(key);const r=await fetch(s.path,{headers:{apikey:s.key,...(s.key.startsWith('sb_secret_')?{}:{Authorization:'Bearer '+s.key})},cache:'no-store',signal:AbortSignal.timeout(15000)});if(r.status===404)return null;if(!r.ok)throw new Error('Photo is unavailable.');return {body:r.body,httpMetadata:{contentType:r.headers.get('Content-Type')||'application/octet-stream'}};},
+};

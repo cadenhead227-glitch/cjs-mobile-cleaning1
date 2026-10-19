@@ -1,0 +1,3 @@
+import { config, database, json, failure } from '@/lib/server';
+import { reservationConflict } from '@/lib/scheduling';
+export async function GET() { try { const db=database(); const slots=await db.prepare(`SELECT id, start, end FROM slots WHERE removed=0 AND enabled=1 AND start > ? AND NOT ${reservationConflict('slots')} ORDER BY start LIMIT 500`).bind(new Date().toISOString()).all(); const results=await db.prepare('SELECT id, title, area, description FROM results WHERE published=1 ORDER BY created_at DESC').all(); return json({settings:await config(),slots:slots.results,results:results.results}); } catch(e) {return failure(e,503);} }

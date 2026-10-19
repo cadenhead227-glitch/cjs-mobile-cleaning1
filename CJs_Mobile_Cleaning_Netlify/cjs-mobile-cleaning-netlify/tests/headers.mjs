@@ -1,0 +1,2 @@
+import {context} from './state.mjs';
+export async function cookies(){const request=context.getStore();return {get(name){const match=request.cookie.split(';').map(x=>x.trim()).find(x=>x.startsWith(name+'='));return match?{value:match.slice(name.length+1)}:undefined;},set(name,value,options){request.writes.push({name,value,options});},delete(name){request.writes.push({name,value:'',deleted:true});}};}
